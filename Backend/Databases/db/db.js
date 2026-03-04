@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");    
 async function connectDB() {
-    await mongoose.connect("mongodb+srv://BackendTutorialMongoDB:<YOUR_DB_PASSWORD>@cluster0.adwypev.mongodb.net/?appName=<CLUSTERNAME>");
+    await mongoose.connect("CONNECTION_STRING_PROVIDED_BY_MONGO");
     
     console.log('DB CONNECTED');
 }
