@@ -45,7 +45,7 @@ module.exports = app;
 
 
 
-//After eac hsession is started and ended the notes disappear as they are stored in RAM and to keep them permanently we need to use a database and we'll link it.
+//After each session is started and ended the notes disappear as they are stored in RAM and to keep them permanently we need to use a database and we'll link it.
 /*
 IN POST REQUEST:
 {
