@@ -5,6 +5,7 @@ const connectDB = require('./db/db'); //importing database connection function f
 connectDB();
 
 
+
 app.listen(3000,() =>{
     console.log("SERVER RUNNING ON PORT 3000");
 });
