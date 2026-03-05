@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");   
 console.log ("in db.js");
 async function connectDB() {
-    await mongoose.connect("mongodb+srv://BackendTutorialMongoDB:6dYPeezz7LYyHn9m@cluster0.adwypev.mongodb.net/?appName=Cluster0");
+    await mongoose.connect("CONNECTION_STRING_PROVIDED_BY_MONGO");
     
     console.log('DB CONNECTED');
 }
