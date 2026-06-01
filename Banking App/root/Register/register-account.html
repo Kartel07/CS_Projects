@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking — Complete Profile</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bank Account Registration</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <form class="p-4 shadow bg-white rounded" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label">Create Custom Unique Alphanumeric Username</label>
+                    <input type="text" id="userID" class="form-control" placeholder="e.g., user_kartik26" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Create Master Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Minimum 8 characters">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password Match</label>
+                    <input type="password" id="confirmPassword" class="form-control">
+                </div>
+                <select id="accountType" class="form-control">
+                    <option value="">Select Account Type Choice</option>
+                    <option value="savings">Savings Vault</option>
+                    <option value="current">Current Business Clearing Line</option>
+                </select>
+                <div id="errorMsg" class="alert alert-danger d-none" style="font-size:13px; padding:8px; margin-bottom:10px; color:red; font-weight:bold;"></div>
+                <div id="successMsg" class="alert alert-success d-none" style="font-size:13px; padding:8px; margin-bottom:10px; color:green; font-weight:bold;"></div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary w-50" style="background:#555;" onclick="window.location.href='register-address.html'">Back</button>
+                    <button type="button" class="btn btn-primary w-50" id="submitBtn" onclick="submitRegistration()">Submit Portfolio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="script-account.js"></script>
+</body>
+</html>

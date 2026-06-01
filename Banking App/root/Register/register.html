@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking — Sign Up</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bank Account Registration</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <form class="p-4 shadow bg-white rounded" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" id="firstName" class="form-control" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" id="lastName" class="form-control" autocomplete="off">
+                </div>
+                <div class="mb-3">
+    <label class="form-label">Date Of Birth (Required for Senior/Minor Perks)</label>
+    <input type="date" id="dateOfBirth" class="form-control">
+</div>
+                <div class="mb-3">
+                    <label class="form-label">Gender</label>
+                    <select id="gender" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Mobile Number (10-Digit Indian)</label>
+                    <input type="number" id="mobileNumber" class="form-control" placeholder="9876543210">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email Address (True Verification)</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@domain.com">
+                </div>
+                <button type="button" class="btn btn-primary w-100" id="nextPage">Next Page</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

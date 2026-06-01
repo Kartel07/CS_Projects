@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking — KYC Compliance</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bank Account Registration</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <form class="p-4 shadow bg-white rounded" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label">KYC Verification Document Choice</label>
+                    <select id="kycType" class="form-control" onchange="adaptKYCPlaceholder(this.value)">
+                        <option value="PAN">PAN Card Registry</option>
+                        <option value="AADHAAR">Aadhaar Card Registry</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">KYC Document Serial String ID</label>
+                    <input type="text" id="kycNumber" class="form-control" placeholder="ABCDE1234F" style="text-transform: uppercase;">
+                </div>
+                <div class="mb-3"><label class="form-label">Residential Address</label><input type="text" id="residentialAddress" class="form-control"></div>
+                <div class="mb-3"><label class="form-label">City</label><input type="text" id="city" class="form-control"></div>
+                <div class="mb-3"><label class="form-label">State</label><input type="text" id="state" class="form-control"></div>
+                <div class="mb-3"><label class="form-label">Country</label><input type="text" id="country" class="form-control"></div>
+                <div class="mb-3"><label class="form-label">PIN code</label><input type="number" id="pincode" class="form-control"></div>
+                <button type="button" class="btn btn-primary w-100" id="nextPage">Next Page -></button>
+                <button type="button" class="btn btn-primary w-100" id="previousPage" style="background:#555;"><- Previous Page</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="script-address.js"></script>
+</body>
+</html>

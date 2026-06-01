@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Banking — Corporate Support Matrix</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body style="display:block; padding:30px; background:#0f172a; color:#f8fafc; font-family:sans-serif; height:auto;">
+
+  <header style="background:#1e293b; padding:20px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; border:1px solid #334155;">
+     <div>
+         <h1 style="margin:0; text-align:left; color:#ff9800; font-size:22px;">Corporate Operations Support Terminal Desk</h1>
+         <span style="font-size:12px; color:#94a3b8;">System Support Security Access Module: Verified</span>
+     </div>
+     <button onclick="sessionStorage.clear(); window.location.href='../Login/login.html';" style="width:auto; margin:0; padding:8px 16px; background:#dc3545; font-size:12px; font-weight:bold;">Terminate Session</button>
+  </header>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:30px;">
+     
+     <div style="background:#1e293b; padding:25px; border-radius:8px; border:1px solid #334155;">
+         <h3 style="margin-top:0; color:#e2e8f0; border-bottom:1px solid #334155; padding-bottom:10px;">Active Customer Relationship Records Directory</h3>
+         <div id="employeeUsersList" style="display:flex; flex-direction:column; gap:12px; margin-top:15px; max-height:600px; overflow-y:auto; padding-right:5px;">
+             Loading profiles registry arrays data...
+         </div>
+     </div>
+
+     <div style="background:#1e293b; padding:25px; border-radius:8px; border:1px solid #334155;">
+         <h3 style="margin-top:0; color:#e2e8f0; border-bottom:1px solid #334155; padding-bottom:10px;">Deep Crawl Portfolio Inspection View</h3>
+         <p id="inspectionSub" style="font-size:12px; color:#94a3b8; margin:5px 0 15px;">Select a customer profile card to inspect historical ledger statement transactions balances sheets.</p>
+         
+         <div id="inspectionLedgerContent" class="d-none">
+             <h4 style="color:#38bdf8; margin-bottom:8px;">Live Connected Asset Portfolios Balance Sheets</h4>
+             <div id="empAccountsList" style="margin-bottom:20px; display:flex; flex-direction:column; gap:8px;"></div>
+             
+             <h4 style="color:#38bdf8; margin-bottom:8px;">Audited Statement Audit Activity History Trails</h4>
+             <div id="empTxnsList" style="display:flex; flex-direction:column; gap:6px; max-height:400px; overflow-y:auto; font-size:12px; background:#0f172a; padding:10px; border-radius:6px; border:1px solid #334155;"></div>
+         </div>
+     </div>
+
+  </div>
+
+  <script>
+    'use strict';
+    if(sessionStorage.getItem('apex_role') !== 'employee') { window.location.href = '../Login/login.html'; }
+
+    const indianRupeeFormatterNode = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+
+    async function crawlPlatformProfiles() {
+        try {
+            const res = await fetch('http://127.0.0.1:5000/api/employee/users');
+            const data = await res.json();
+            if(!res.ok) return;
+
+            const listEl = document.getElementById('employeeUsersList');
+            if(data.users.length === 0) { listEl.textContent = 'No registered customers found.'; return; }
+
+            listEl.innerHTML = data.users.map(u => `
+               <div style="background:#334155; padding:15px; border-radius:6px; cursor:pointer; border:1px solid transparent; transition:0.2s;" onclick="inspectTargetClient('${u.user_id}', '${u.username}')" onmouseover="this.style.borderColor='#ff9800'" onmouseout="this.style.borderColor='transparent'">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                     <strong style="color:#f1f5f9; font-size:14px;">Handle: @${u.username}</strong>
+                     <span style="font-size:11px; background:#0f172a; padding:2px 6px; border-radius:4px; font-family:monospace; color:#94a3b8;">Ref ID: Masked Mode Active</span>
+                  </div>
+                  <div style="font-size:12px; margin-top:6px; color:#cbd5e1;">Legal Name: ${u.first_name} ${u.last_name} | Contact: ${u.phone}</div>
+                  <div style="font-size:11px; margin-top:3px; color:#94a3b8;">Verified KYC Bundle: [ ${u.kyc_type} Registration Number Masked ]</div>
+               </div>
+            `).join('');
+        } catch(err) { console.error(err); }
+    }
+
+    async function inspectTargetClient(userId, username) {
+        document.getElementById('inspectionSub').textContent = `Inspecting Operations History Tracking File: @${username}`;
+        const contentBox = document.getElementById('inspectionLedgerContent');
+        contentBox.classList.add('d-none');
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/api/employee/user-ledger/${userId}`);
+            const data = await res.json();
+            if(!res.ok) return;
+
+            const accsList = document.getElementById('empAccountsList');
+            accsList.innerHTML = (data.accounts || []).map(a => `
+               <div style="display:flex; justify-content:space-between; background:#0f172a; padding:10px; border-radius:4px; border:1px solid #334155;">
+                  <span style="text-transform:uppercase; font-size:11px; font-weight:bold; color:#cbd5e1;">${a.account_type} Portfolio (Index: #${a.id})</span>
+                  <strong style="color:#4ade80;">${indianRupeeFormatterNode.format(a.balance)}</strong>
+               </div>
+            `).join('');
+
+            const txnsList = document.getElementById('empTxnsList');
+            if((data.transactions || []).length === 0) { txnsList.textContent = 'Zero transaction logs logged.'; }
+            else {
+                txnsList.innerHTML = data.transactions.map(t => `
+                   <div style="padding:6px 0; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between;">
+                      <span>${t.description}</span>
+                      <strong style="color:${t.txn_type==='credit'?'#4ade80':'#f43f5e'}">${t.txn_type==='credit'?'+':'-'}${t.amount}</strong>
+                   </div>
+                `).join('');
+            }
+            contentBox.classList.remove('d-none');
+        } catch(err) { alert('Failed to pull records matrix maps.'); }
+    }
+
+    window.addEventListener('DOMContentLoaded', crawlPlatformProfiles);
+  </script>
+</body>
+</html>

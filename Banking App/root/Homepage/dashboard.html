@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banking Dashboard</title>
+  <link href="dashboard-ui.css" rel="stylesheet">
+  <script src="jspdf.umd.min.js"></script>
+</head>
+<body> <nav style="display:flex; justify-content:space-between; align-items:center; background:#1e293b; padding:15px 30px; border-radius:8px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+    <div style="color:white; font-size:20px; font-weight:bold;">Bank <span style="color:#d15b1c;">Core</span> Dashboard</div>
+    <div style="color:white; font-size:14px;">User: <strong id="userDisplayHandle" style="color:#e2e8f0;">—</strong> | <a href="#" onclick="sessionStorage.clear(); window.location.href='../Login/login.html';" style="color:#f43f5e; text-decoration:none; margin-left:15px; font-weight:bold;">Logout</a></div>
+  </nav>
+
+  <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px; max-width:1400px; margin:0 auto;">
+    <div>
+      <div class="card-v" style="margin-bottom:25px;"> <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f1f5f9; padding-bottom:10px;">
+             <h2 style="margin:0; color:#334155; font-size:18px;">My Active Financial Portfolios</h2>
+             <button onclick="togglePrivateAccountDetails()" id="toggleDetailsBtn" style="width:auto; margin:0; padding:6px 14px; font-size:12px; font-weight:bold; background:#475569;">Reveal Hidden Account Numbers</button>
+         </div>
+         <div id="accountsWrapper" style="display:flex; flex-direction:column; gap:15px; margin-top:15px;"></div>
+         <button onclick="window.location.href='fixed-deposit.html'" class="btn-accent" style="margin-top:15px; font-weight:bold;">Configure New High-Yield Fixed Deposit</button>
+      </div>
+
+      <div class="card-v">
+   <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f1f5f9; padding-bottom:10px; margin-bottom:15px; flex-wrap: wrap; gap:10px;">
+       <h2 style="margin:0; color:#334155; font-size:18px;">Audited Statement Ledger History</h2>
+       
+       <div style="display:flex; align-items:center; gap:8px;">
+           <label for="monthFilterSelect" style="margin:0; font-size:12px; font-weight:bold; white-space:nowrap;">Statement Cycle:</label>
+           <select id="monthFilterSelect" onchange="switchStatementTimelineCycle(this.value)" style="margin:0; padding:5px 10px; font-size:13px; width:auto; height:auto; min-width:120px;"></select>
+       </div>
+
+       <button onclick="compilePrintPDF()" style="width:auto; padding:8px 16px; margin:0; background:#0284c7; font-size:13px; font-weight:bold;">Download Certified PDF Statement</button>
+   </div>
+   <div id="transactionsWrapper"></div>
+</div>
+    </div>
+
+    <div>
+      <div class="card-v" style="margin-bottom:25px;"> <h3 style="margin-top:0; color:#1e293b; font-size:16px;">Core Account Transaction Execution Desk</h3>
+          <form id="deskTxForm" onsubmit="return false;" style="width:100%; padding:0; box-shadow:none;">
+              <div style="margin-bottom:10px;">
+                  <label>Select Target Clearing Account Reference</label>
+                  <select id="deskTargetId"></select>
+              </div>
+              <div style="margin-bottom:10px;">
+                  <label>Operation Authorization Selection</label>
+                  <select id="deskActionType">
+                      <option value="deposit">Standard Balance Cash Deposit Entry</option>
+                      <option value="withdraw">Regulatory Minimum Cash Withdrawal Entry</option>
+                  </select>
+              </div>
+              <div style="margin-bottom:15px;">
+                  <label>Transaction Amount Value (INR)</label>
+                  <input type="number" id="deskAmount" placeholder="₹0.00">
+              </div>
+              <button onclick="executeDeskAction()" style="background:#10b981; margin:0; font-weight:bold;">Authorize Settlement Processing</button>
+          </form>
+      </div>
+
+      <div class="card-v" style="margin-bottom:25px;"> <h3 style="margin-top:0; color:#1e293b; font-size:16px;">Modify Credentials Profile Handles</h3>
+          <div style="margin-bottom:12px;">
+              <label style="color:#555;">System ID Reference Identity (Masked Mode)</label>
+              <div style="background:#f8fafc; padding:10px; border-radius:4px; border:1px solid #e2e8f0; font-family:monospace; font-size:12px; color:#94a3b8;">ACCESS RESTRICTED IN DASHBOARD CHANNELS</div>
+          </div>
+          <div style="margin-bottom:12px;">
+              <label>New Desired Username Handle</label>
+              <input type="text" id="newUsernameInput" placeholder="Enter updated username">
+          </div>
+          <button onclick="alterUsernameHandle()" style="background:#64748b; margin:0; font-weight:bold;">Commit Handle Update</button>
+      </div>
+
+      <div class="card-v"> <h3 style="margin-top:0; color:#1e293b; font-size:16px;">Provision New Sub-Account Portfolio Product</h3>
+          <div style="margin-bottom:10px;">
+              <label>Select Target Expansion Account Product Line</label>
+              <select id="subType">
+                  <option value="savings">Savings Vault Portfolio (Base: 4.00% p.a.)</option>
+                  <option value="current">Current Business Clearing Line (Zero Dividend Yield)</option>
+              </select>
+          </div>
+          <div style="margin-bottom:15px;">
+              <label>Initial Capital Reserve Deposit (INR)</label>
+              <input type="number" id="subDeposit" placeholder="₹ Value must match product min parameters">
+          </div>
+          <button onclick="provisionSubLine()" class="btn-accent" style="margin:0; font-weight:bold;">Provision Additional Bank Product</button>
+      </div>
+    </div>
+  </div>
+  <script src="dashboard.js"></script>
+</body>
+</html>

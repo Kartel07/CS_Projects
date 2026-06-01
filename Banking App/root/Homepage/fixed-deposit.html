@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking — Fixed Deposit Customization Desk</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body style="display:block; background:#f0f2f5; padding:30px; font-family:sans-serif; height:auto; margin:0;">
+
+  <nav style="display:flex; justify-content:space-between; align-items:center; background:#1e293b; padding:15px 30px; border-radius:8px; margin-bottom:25px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+     <div style="color:white; font-size:18px; font-weight:bold;">Central <span style="color:#ff9800;">FD Matrix Desk</span></div>
+     <button onclick="window.location.href='dashboard.html'" style="width:auto; margin:0; padding:6px 14px; background:#475569; font-size:12px;">Back to Dashboard Cockpit</button>
+  </nav>
+
+  <div style="display:grid; grid-template-columns: 2fr 1fr; gap:30px; max-width:1300px; margin:0 auto;">
+     <div style="background:white; padding:30px; border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,0.05);">
+         <h2 style="margin-top:0; color:#1e293b; border-bottom:2px solid #f1f5f9; padding-bottom:10px; font-size:20px;">Configure Fixed Term Yield Certificate Asset</h2>
+         
+         <div style="margin-bottom:20px; background:#f8fafc; padding:15px; border-radius:6px; border-left:4px solid #ff9800;">
+             <label style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase;">Principal Funding Investment Capital Value (INR)</label>
+             <input type="number" id="fdAmountInput" value="100000" min="10000" style="font-size:24px; font-weight:bold; padding:10px; margin-top:5px; width:100%;" oninput="executeDynamicFDProjectionsCalculations()">
+             <span style="font-size:11px; color:#94a3b8;">Minimum statutory activation reservation entry requires a capital allocation of ₹10,000.00</span>
+         </div>
+
+         <div style="margin-bottom:20px;">
+             <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:8px;">Select Locked Investment Tenure Range Lock</label>
+             <div style="display:flex; gap:20px; align-items:center; background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:10px; font-size: 13px;">
+                 <label style="cursor:pointer;"><input type="radio" name="fdTenureRadio" value="12" checked onchange="toggleTenureOptions(this.value)"> Regular (1 Year)</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdTenureRadio" value="36" onchange="toggleTenureOptions(this.value)"> Medium (3 Years)</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdTenureRadio" value="60" onchange="toggleTenureOptions(this.value)"> Long (5 Years)</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdTenureRadio" value="444" onchange="toggleTenureOptions(this.value)"> Special (444 Days Monitored)</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdTenureRadio" value="flexible" onchange="toggleTenureOptions(this.value)"> Flexible Tenure</label>
+             </div>
+             
+             <div id="flexibleTenureWrapper" class="d-none" style="background:#fff3cd; padding:12px; border-radius:6px; border:1px solid #ffeeba;">
+                 <label style="font-size:12px; font-weight:bold; color:#856404;">Input Custom Lifespan Duration (In Months Count)</label>
+                 <input type="number" id="fdCustomMonthsInput" value="24" min="1" max="120" style="padding:8px; margin-top:4px;" oninput="executeDynamicFDProjectionsCalculations()">
+             </div>
+         </div>
+
+         <div style="margin-bottom:20px;">
+             <label style="font-size:13px; font-weight:bold; display:block; margin-bottom:8px;">Interest Dividend Payout Interval Strategy</label>
+             <div style="display:flex; gap:25px; background:#f8fafc; padding:12px; border-radius:6px; border:1px solid #e2e8f0; font-size: 13px;">
+                 <label style="cursor:pointer;"><input type="radio" name="fdPayoutRadio" value="Monthly" checked onchange="executeDynamicFDProjectionsCalculations()"> Monthly distributed dividend payout</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdPayoutRadio" value="Quarterly" onchange="executeDynamicFDProjectionsCalculations()"> Quarterly compounded distributed payout</label>
+                 <label style="cursor:pointer;"><input type="radio" name="fdPayoutRadio" value="Maturity" onchange="executeDynamicFDProjectionsCalculations()"> Cumulative distributed total on maturity</label>
+             </div>
+         </div>
+
+         <div style="background:#e2e8f0; padding:15px; border-radius:6px; font-size:13px; color:#334155;">
+             <strong>📢 Regulatory Policy Maturity Action:</strong> Upon crossing the target maturity block timeline boundaries, this structural asset configuration auto-liquidates, automatically routing the principal deposit capital value and remaining returns directly back to your active primary profile ledger clearing accounts.
+         </div>
+
+         <button onclick="commitFixedDepositAssetLineToServer()" style="background:#10b981; color:white; font-size:16px; font-weight:bold; padding:14px; margin-top:20px; border:none; border-radius:6px; width:100%;">Authorize Ledger Asset Block Entry</button>
+     </div>
+
+     <div style="background:#1e293b; color:white; padding:25px; border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,0.15); height:fit-content;">
+         <h3 style="margin-top:0; color:#ff9800; border-bottom:1px solid #334155; padding-bottom:8px; font-size:16px; text-transform:uppercase; letter-spacing:1px;">Live Yield Analytics Summary</h3>
+         
+         <div style="margin-bottom:20px;">
+             <span style="font-size:11px; color:#94a3b8; display:block;">Applied Rate of Interest</span>
+             <strong id="sidebarRateDisplay" style="font-size:24px; color:#38bdf8;">0.00% p.a.</strong>
+             <span id="sidebarAgeIncentiveLabel" style="font-size:11px; color:#4ade80; display:block; margin-top:4px; font-weight: bold;"></span>
+         </div>
+         <div style="margin-bottom:20px;">
+             <span style="font-size:11px; color:#94a3b8; display:block;">Total Interest Earned</span>
+             <strong id="sidebarInterestDisplay" style="font-size:24px; color:#cbd5e1;">₹0.00</strong>
+         </div>
+         <div style="margin-bottom:20px;">
+             <span style="font-size:11px; color:#94a3b8; display:block;">Projected Amount on Maturity</span>
+             <strong id="sidebarMaturityAmountDisplay" style="font-size:28px; color:#4ade80;">₹0.00</strong>
+         </div>
+         <div style="border-top:1px solid #334155; padding-top:15px; font-size:12px; color:#94a3b8; display:flex; flex-direction:column; gap:6px;">
+             <div>Tenure Configuration: <strong id="sidebarTenureDisplay" style="color:white;">—</strong></div>
+             <div>Payout Option: <strong id="sidebarPayoutDisplay" style="color:white;">—</strong></div>
+         </div>
+     </div>
+  </div>
+
+  <script>
+    'use strict';
+    const uId = sessionStorage.getItem('apex_user_id');
+    if(!uId) { window.location.href = '../Login/login.html'; }
+
+    let calculatedRateState = 6.50; 
+    let targetClientAgeParam = 30;   
+
+    async function loadClientAgeParameters() {
+       try {
+          const res = await fetch(`http://127.0.0.1:5000/api/dashboard/${uId}`);
+          const data = await res.json();
+          if(res.ok && data.dob) {
+              const birthDate = new Date(data.dob);
+              targetClientAgeParam = Math.abs(new Date(Date.now() - birthDate.getTime()).getUTCFullYear() - 1970);
+              executeDynamicFDProjectionsCalculations();
+          }
+       } catch(err) { console.error(err); }
+    }
+
+    function toggleTenureOptions(val) {
+        const customWrapper = document.getElementById('flexibleTenureWrapper');
+        if(val === 'flexible') customWrapper.classList.remove('d-none');
+        else customWrapper.classList.add('d-none');
+        executeDynamicFDProjectionsCalculations();
+    }
+
+    function executeDynamicFDProjectionsCalculations() {
+        const amount = parseFloat(document.getElementById('fdAmountInput').value) || 0;
+        let months = 12;
+        const tenureRadio = document.querySelector('input[name="fdTenureRadio"]:checked').value;
+        let structuralBaseRate = 6.50; 
+        let specialSchemeActive = false;
+
+        if (tenureRadio === '12') { months = 12; }
+        else if (tenureRadio === '36') { months = 36; }
+        else if (tenureRadio === '60') { months = 60; }
+        else if (tenureRadio === '444') { 
+            months = 15; // Approx 14.6 months 
+            structuralBaseRate = 7.25; // Special high-yield window tier (e.g., Amrit Vrishti / special slabs)
+            specialSchemeActive = true;
+        } else {
+            months = parseInt(document.getElementById('fdCustomMonthsInput').value) || 12;
+        }
+
+        const incentiveBox = document.getElementById('sidebarAgeIncentiveLabel');
+        if (targetClientAgeParam >= 60) {
+            // Adds standard preferential 50 bps over regular fixed deposit interest rates
+            structuralBaseRate += 0.50; 
+            
+            // Unlocks additional 20-30 bps for pre-determined special tenures
+            if(specialSchemeActive) {
+                structuralBaseRate += 0.25; // Extra 25 bps under special pre-determined schemes
+                incentiveBox.textContent = "Senior Citizen Preferential + Special Term Bonus Applied (+75 bps Yield Premium)";
+            } else {
+                incentiveBox.textContent = "Resident Senior Citizen Preferential Rate Applied (+50 bps)";
+            }
+        } else { 
+            incentiveBox.textContent = specialSchemeActive ? "Special Limited Period High-Yield Scheme Tenure unlocked." : ""; 
+        }
+
+        const selectedPayoutOption = document.querySelector('input[name="fdPayoutRadio"]:checked').value;
+        let totalInterestEarned = 0;
+        
+        if(selectedPayoutOption === 'Maturity' || selectedPayoutOption === 'Quarterly') {
+            // Standard financial industry quarterly compounding algorithm context parameters mapping
+            totalInterestEarned = amount * (Math.pow((1 + (structuralBaseRate / 400)), (4 * (months / 12))) - 1);
+        } else {
+            totalInterestEarned = amount * (structuralBaseRate / 100) * (months / 12);
+        }
+
+        const aggregateMaturityVal = amount + totalInterestEarned;
+
+        document.getElementById('sidebarRateDisplay').textContent = `${structuralBaseRate.toFixed(2)}% p.a.`;
+        document.getElementById('sidebarInterestDisplay').textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalInterestEarned);
+        document.getElementById('sidebarMaturityAmountDisplay').textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(aggregateMaturityVal);
+        document.getElementById('sidebarTenureDisplay').textContent = tenureRadio === '444' ? "444 Days Special Scheme" : `${months} Months Window`;
+        document.getElementById('sidebarPayoutDisplay').textContent = selectedPayoutOption;
+
+        calculatedRateState = structuralBaseRate; 
+    }
+
+    async function commitFixedDepositAssetLineToServer() {
+        const amount = parseFloat(document.getElementById('fdAmountInput').value) || 0;
+        if(amount < 10000) { alert("Minimum baseline tracking allocation parameter requires ₹10,000.00 to deploy."); return; }
+
+        let months = 12;
+        const tenureRadio = document.querySelector('input[name="fdTenureRadio"]:checked').value;
+        if (tenureRadio === '12') months = 12;
+        else if (tenureRadio === '36') months = 36;
+        else if (tenureRadio === '60') months = 60;
+        else if (tenureRadio === '444') months = 15;
+        else months = parseInt(document.getElementById('fdCustomMonthsInput').value) || 12;
+
+        const payout = document.querySelector('input[name="fdPayoutRadio"]:checked').value;
+
+        try {
+            const res = await fetch('http://127.0.0.1:5000/api/fixed-deposit/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: uId, amount, tenure_months: months, interest_rate: calculatedRateState, payout_option: payout })
+            });
+            const data = await res.json();
+            alert(data.message);
+            if(res.ok) { window.location.href = 'dashboard.html'; }
+        } catch(err) { alert("Core accounting framework server link timeout exception."); }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadClientAgeParameters);
+  </script>
+</body>
+</html>

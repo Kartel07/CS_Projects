@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking — Secure Login Terminal</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bank Secure Sign In Matrix</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <form id="credentialsForm" class="p-4 shadow bg-white rounded" onsubmit="return false;">
+                <div class="mb-3">
+                    <label class="form-label">Username Handle or System UUID ID</label>
+                    <input type="text" id="loginHandle" class="form-control" placeholder="Enter Username or APX-ID" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password Key</label>
+                    <input type="password" id="password" class="form-control">
+                </div>
+                <div id="errorMsg" class="alert alert-danger d-none" style="font-size:13px; padding:8px; margin-bottom:10px; color:red; font-weight:bold;"></div>
+                <button type="button" class="btn btn-primary w-100" id="initBtn" onclick="initiateChallenge(event)">Verify Profile</button>
+            </form>
+
+            <form id="otpForm" class="p-4 shadow bg-white rounded d-none" onsubmit="return false;">
+                <div style="text-align:center; margin-bottom:15px; background:#eef5fc; padding:10px; border-radius:6px;">
+                    <span style="font-size:13px; color:#333; font-weight:bold;">Multi-Factor Authentication Active</span>
+                    <p style="font-size:12px; color:#555; margin:5px 0 0;">A 6-digit access challenge has been printed to your backend server console logs.</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Enter 6-Digit Secure Verification Code (OTP)</label>
+                    <input type="text" id="otpToken" class="form-control" maxlength="6" style="text-align:center; font-size:20px; letter-spacing:8px; font-weight:bold;" autocomplete="off">
+                </div>
+                <div id="otpErrorMsg" class="alert alert-danger d-none" style="font-size:13px; padding:8px; margin-bottom:10px; color:red; font-weight:bold;"></div>
+                <button type="button" class="btn btn-primary w-100" style="background:#28a745;" onclick="verifyChallenge(event)">Authorize Session Clearance</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="login.js"></script>
+</body>
+</html>
