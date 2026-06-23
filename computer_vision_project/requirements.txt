@@ -1,0 +1,13 @@
+torch
+numpy
+pandas
+yolov5
+opencv-python
+matplotlib
+torchvision
+HandTrackingModule
+cvzone
+mediapipe
+tf-keras
+csv
+tkinter
