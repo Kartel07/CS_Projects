@@ -1,0 +1,3 @@
+D:/MYFILES/kartik/CS_Projects/GameEngine/build/CMakeFiles/VisualizationEngine.dir
+D:/MYFILES/kartik/CS_Projects/GameEngine/build/CMakeFiles/edit_cache.dir
+D:/MYFILES/kartik/CS_Projects/GameEngine/build/CMakeFiles/rebuild_cache.dir
