@@ -21,11 +21,16 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Copy production node_modules first (maximises layer caching)
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copy application code
+# Copy application code (backend)
 COPY root/Backend/ .
 
+# Copy frontend static files
+COPY root/Homepage ../Homepage
+COPY root/Login ../Login
+COPY root/Register ../Register
+
 # Set secure permissions
-RUN chown -R appuser:appgroup /app
+RUN chown -R appuser:appgroup /app /Homepage /Login /Register
 
 USER appuser
 

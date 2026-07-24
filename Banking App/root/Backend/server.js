@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 const config = require('./config');
@@ -48,6 +49,11 @@ app.use(morgan(config.NODE_ENV === 'production' ? 'combined' : 'dev'));
 // Global rate limiter
 app.use('/api', generalLimiter);
 
+// ── Static frontend serving ──
+app.use(express.static(path.join(__dirname, '../Homepage')));
+app.use('/Login', express.static(path.join(__dirname, '../Login')));
+app.use('/Register', express.static(path.join(__dirname, '../Register')));
+
 // ── Routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
@@ -57,6 +63,11 @@ app.use('/api/employee', employeeRoutes);
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// Redirect root to home page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../Homepage/home.html'));
 });
 
 // ── Error handling ──
