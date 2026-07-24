@@ -51,6 +51,7 @@ app.use('/api', generalLimiter);
 
 // ── Static frontend serving ──
 app.use(express.static(path.join(__dirname, '../Homepage')));
+app.use('/Homepage', express.static(path.join(__dirname, '../Homepage')));
 app.use('/Login', express.static(path.join(__dirname, '../Login')));
 app.use('/Register', express.static(path.join(__dirname, '../Register')));
 
