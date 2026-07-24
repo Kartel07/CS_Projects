@@ -48,7 +48,7 @@
 
     async function crawlPlatformProfiles() {
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/employee/users');
+            const res = await fetch('http://127.0.0.1:5000/api/employee/users', { credentials: 'include' });
             const data = await res.json();
             if(!res.ok) return;
 
@@ -74,7 +74,7 @@
         contentBox.classList.add('d-none');
 
         try {
-            const res = await fetch(`http://127.0.0.1:5000/api/employee/user-ledger/${userId}`);
+            const res = await fetch(`http://127.0.0.1:5000/api/employee/users/${userId}/ledger`, { credentials: 'include' });
             const data = await res.json();
             if(!res.ok) return;
 

@@ -1,0 +1,91 @@
+# ============================================================
+# APEX BANKING — CI/CD Pipeline
+# ============================================================
+# Triggers on push / pull-request to main.
+# Steps: Lint → Install → Test
+# ============================================================
+
+name: Apex Banking CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: 20
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_USER: root
+  DB_PASSWORD: rootpass
+  DB_NAME: apex_banking_test
+  JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
+  JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
+  CORS_ORIGIN: http://127.0.0.1:5500
+
+jobs:
+  # ── Lint & Test ─────────────────────────────────────────────
+  test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpass
+          MYSQL_DATABASE: apex_banking_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: root/Backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: root/Backend
+        run: npm ci
+
+      - name: Lint check (syntax validation)
+        working-directory: root/Backend
+        run: node -c server.js && node -c config/db.js && node -c config/index.js
+
+      - name: Initialize database schema
+        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking_test < root/Backend/setup.sql
+
+      - name: Run migration scripts
+        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking_test < root/Backend/migrations/001_audit_and_indexes.sql
+
+      - name: Run test suite
+        working-directory: root/Backend
+        run: npm test
+        env:
+          NODE_ENV: test
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: rootpass
+          DB_NAME: apex_banking_test
+          JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
+          JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
+
+      - name: Upload test coverage (if available)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: root/Backend/junit.xml
+          if-no-files-found: ignore

@@ -49,7 +49,7 @@
          </div>
 
          <div style="background:#e2e8f0; padding:15px; border-radius:6px; font-size:13px; color:#334155;">
-             <strong>📢 Regulatory Policy Maturity Action:</strong> Upon crossing the target maturity block timeline boundaries, this structural asset configuration auto-liquidates, automatically routing the principal deposit capital value and remaining returns directly back to your active primary profile ledger clearing accounts.
+             <strong>Regulatory Policy Maturity Action:</strong> Upon crossing the target maturity block timeline boundaries, this structural asset configuration auto-liquidates, automatically routing the principal deposit capital value and remaining returns directly back to your active primary profile ledger clearing accounts.
          </div>
 
          <button onclick="commitFixedDepositAssetLineToServer()" style="background:#10b981; color:white; font-size:16px; font-weight:bold; padding:14px; margin-top:20px; border:none; border-radius:6px; width:100%;">Authorize Ledger Asset Block Entry</button>
@@ -88,7 +88,7 @@
 
     async function loadClientAgeParameters() {
        try {
-          const res = await fetch(`http://127.0.0.1:5000/api/dashboard/${uId}`);
+          const res = await fetch(`http://127.0.0.1:5000/api/accounts/dashboard/${uId}`, { credentials: 'include' });
           const data = await res.json();
           if(res.ok && data.dob) {
               const birthDate = new Date(data.dob);
@@ -175,9 +175,10 @@
         const payout = document.querySelector('input[name="fdPayoutRadio"]:checked').value;
 
         try {
-            const res = await fetch('http://127.0.0.1:5000/api/fixed-deposit/create', {
+            const res = await fetch('http://127.0.0.1:5000/api/accounts/fixed-deposit', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify({ user_id: uId, amount, tenure_months: months, interest_rate: calculatedRateState, payout_option: payout })
             });
             const data = await res.json();

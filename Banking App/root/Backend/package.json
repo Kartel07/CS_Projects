@@ -1,22 +1,33 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "apex-banking-backend",
+  "version": "2.0.0",
+  "description": "Apex Banking — Production-ready backend with MVC architecture, JWT auth, rate limiting, and audit logging.",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles",
+    "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch --forceExit --detectOpenHandles"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["banking", "express", "mysql", "jwt", "mvc"],
+  "author": "Apex Banking Corp",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "disposable-email-domains": "^1.0.62",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "mysql2": "^3.22.3",
-    "nodemailer": "^8.0.7",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.0"
   }
 }

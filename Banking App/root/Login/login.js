@@ -12,9 +12,10 @@ async function initiateChallenge(e) {
   if(!handle || !pass) { alert("Please input credential fields parameters."); return; }
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/api/login/initiate', {
+    const res = await fetch('http://127.0.0.1:5000/api/auth/login/initiate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ login_handle: handle, password: pass })
     });
     const data = await res.json();
@@ -46,9 +47,10 @@ async function verifyChallenge(e) {
   if(otpErr) otpErr.classList.add('d-none');
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/api/login/verify', {
+    const res = await fetch('http://127.0.0.1:5000/api/auth/login/verify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ login_handle: trackedHandle, otp_code: token })
     });
     const data = await res.json();

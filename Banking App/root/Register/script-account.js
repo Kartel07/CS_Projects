@@ -43,9 +43,10 @@ const payload = {
   const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.textContent = 'Verifying Data...';
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/api/register', {
+    const res = await fetch('http://127.0.0.1:5000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload)
     });
     const data = await res.json();

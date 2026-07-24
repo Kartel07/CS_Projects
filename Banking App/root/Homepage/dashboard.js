@@ -15,10 +15,10 @@ let targetedActiveCycleMonthString = '';
 // Main dashboard bootloader initialization point
 async function loadDashboardData(targetMonth = '') {
   try {
-    let endpointUrlPath = `http://127.0.0.1:5000/api/dashboard/${uId}`;
+    let endpointUrlPath = `http://127.0.0.1:5000/api/accounts/dashboard/${uId}`;
     if(targetMonth) { endpointUrlPath += `?month=${targetMonth}`; }
 
-    const res = await fetch(endpointUrlPath);
+    const res = await fetch(endpointUrlPath, { credentials: 'include' });
     const data = await res.json();
     if(!res.ok) { console.error(data.message); return; }
 
@@ -112,9 +112,10 @@ async function executeDeskAction() {
   if(!account_id || !amount) { alert("Please complete all transactional metric data inputs."); return; }
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/api/transaction/execute', {
+    const res = await fetch('http://127.0.0.1:5000/api/transactions/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ account_id, user_id: uId, action_type, amount, description: `Manual transaction desk processing — ${action_type.toUpperCase()}` })
     });
     const data = await res.json();
@@ -129,9 +130,10 @@ async function alterUsernameHandle() {
   if(!newName) { alert("Please input a valid username array match block."); return; }
 
   try {
-    const res = await fetch('http://127.0.0.1:5000/api/users/update-username', {
+    const res = await fetch('http://127.0.0.1:5000/api/accounts/username', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ user_id: uId, new_username: newName })
     });
     const data = await res.json();
@@ -149,6 +151,7 @@ async function provisionSubLine() {
     const res = await fetch('http://127.0.0.1:5000/api/accounts/open', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ user_id: uId, account_type: type, initial_deposit: dep })
     });
     const data = await res.json();
