@@ -1,8 +1,9 @@
 # ============================================================
 # APEX BANKING — CI/CD Pipeline
 # ============================================================
-# Triggers on push / pull-request to main.
-# Steps: Lint → Install → Test
+# Triggers on push / pull-request to main and develop.
+# Spins up a fresh MySQL container, initialises the schema,
+# runs lint validation, and executes the full test suite.
 # ============================================================
 
 name: Apex Banking CI/CD
@@ -19,7 +20,7 @@ env:
   DB_PORT: 3306
   DB_USER: root
   DB_PASSWORD: rootpass
-  DB_NAME: apex_banking_test
+  DB_NAME: apex_banking
   JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
   JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
   CORS_ORIGIN: http://127.0.0.1:5500
@@ -35,7 +36,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: rootpass
-          MYSQL_DATABASE: apex_banking_test
+          MYSQL_DATABASE: apex_banking
         ports:
           - 3306:3306
         options: >-
@@ -57,17 +58,43 @@ jobs:
 
       - name: Install dependencies
         working-directory: root/Backend
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      - name: Lint check (syntax validation)
+      - name: Syntax validation
         working-directory: root/Backend
-        run: node -c server.js && node -c config/db.js && node -c config/index.js
+        run: |
+          node -c server.js
+          node -c config/db.js
+          node -c config/index.js
+          node -c controllers/authController.js
+          node -c controllers/accountController.js
+          node -c controllers/transactionController.js
+          node -c controllers/employeeController.js
+          node -c middleware/auth.js
+          node -c middleware/errorHandler.js
+          node -c middleware/rateLimiter.js
+          node -c middleware/validator.js
+          node -c routes/auth.js
+          node -c routes/accounts.js
+          node -c routes/transactions.js
+          node -c routes/employee.js
+          node -c services/authService.js
+          node -c services/accountService.js
+          node -c services/transactionService.js
+          node -c services/employeeService.js
+          node -c utils/helpers.js
+          node -c utils/logger.js
 
       - name: Initialize database schema
-        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking_test < root/Backend/setup.sql
+        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking < root/Backend/setup.sql
 
       - name: Run migration scripts
-        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking_test < root/Backend/migrations/001_audit_and_indexes.sql
+        run: mysql -h 127.0.0.1 -u root -prootpass apex_banking < root/Backend/migrations/001_audit_and_indexes.sql
 
       - name: Run test suite
         working-directory: root/Backend
@@ -78,14 +105,7 @@ jobs:
           DB_PORT: 3306
           DB_USER: root
           DB_PASSWORD: rootpass
-          DB_NAME: apex_banking_test
+          DB_NAME: apex_banking
           JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
           JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
-
-      - name: Upload test coverage (if available)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: root/Backend/junit.xml
-          if-no-files-found: ignore
+          CORS_ORIGIN: http://127.0.0.1:5500
