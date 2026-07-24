@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apex-api-config-prod
+  namespace: apex-banking-prod
+data:
+  NODE_ENV: production
+  CORS_ORIGIN: https://banking.example.com

@@ -1,34 +1,36 @@
 # ============================================================
-# APEX BANKING — CI/CD Pipeline
+# APEX BANKING — Multi-Environment CI/CD Pipeline
 # ============================================================
-# Triggers on push / pull-request to main and develop.
-# Spins up a fresh MySQL container, initialises the schema,
-# runs lint validation, and executes the full test suite.
+# Flow:
+#   Push any branch  → Test (lint + unit + integration)
+#   Push develop     → Test → Dev Deploy (auto)
+#   Push main        → Test → Staging Deploy → Manual Approval → Prod Deploy
 # ============================================================
 
 name: Apex Banking CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, feat/*, fix/*]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 env:
   NODE_VERSION: 20
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
   DB_HOST: 127.0.0.1
   DB_PORT: 3306
   DB_USER: root
   DB_PASSWORD: rootpass
   DB_NAME: apex_banking
-  JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
-  JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
-  CORS_ORIGIN: http://127.0.0.1:5500
 
 jobs:
-  # ── Lint & Test ─────────────────────────────────────────────
+  # ──────────────────────────────────────────────────────────
+  # 1. TEST — runs on every push/PR
+  # ──────────────────────────────────────────────────────────
   test:
-    name: Lint & Test
+    name: Run Tests
     runs-on: ubuntu-latest
 
     services:
@@ -59,36 +61,23 @@ jobs:
       - name: Install dependencies
         working-directory: root/Backend
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Syntax validation
         working-directory: root/Backend
         run: |
-          node -c server.js
-          node -c config/db.js
-          node -c config/index.js
-          node -c controllers/authController.js
-          node -c controllers/accountController.js
-          node -c controllers/transactionController.js
-          node -c controllers/employeeController.js
-          node -c middleware/auth.js
-          node -c middleware/errorHandler.js
-          node -c middleware/rateLimiter.js
-          node -c middleware/validator.js
-          node -c routes/auth.js
-          node -c routes/accounts.js
-          node -c routes/transactions.js
-          node -c routes/employee.js
-          node -c services/authService.js
-          node -c services/accountService.js
-          node -c services/transactionService.js
-          node -c services/employeeService.js
-          node -c utils/helpers.js
-          node -c utils/logger.js
+          files=(
+            server.js config/db.js config/index.js
+            controllers/authController.js controllers/accountController.js
+            controllers/transactionController.js controllers/employeeController.js
+            middleware/auth.js middleware/errorHandler.js middleware/rateLimiter.js middleware/validator.js
+            routes/auth.js routes/accounts.js routes/transactions.js routes/employee.js
+            services/authService.js services/accountService.js services/transactionService.js
+            services/employeeService.js services/mfaService.js
+            utils/helpers.js utils/logger.js
+          )
+          for f in "${files[@]}"; do node -c "$f" || exit 1; done
+          echo "All files pass syntax check"
 
       - name: Initialize database schema
         run: mysql -h 127.0.0.1 -u root -prootpass apex_banking < root/Backend/setup.sql
@@ -106,6 +95,180 @@ jobs:
           DB_USER: root
           DB_PASSWORD: rootpass
           DB_NAME: apex_banking
-          JWT_ACCESS_SECRET: ci-test-access-secret-do-not-use-in-prod
-          JWT_REFRESH_SECRET: ci-test-refresh-secret-do-not-use-in-prod
+          JWT_ACCESS_SECRET: ci-test-access-secret
+          JWT_REFRESH_SECRET: ci-test-refresh-secret
           CORS_ORIGIN: http://127.0.0.1:5500
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: root/Backend/junit.xml
+          if-no-files-found: ignore
+
+  # ──────────────────────────────────────────────────────────
+  # 2. BUILD & PUSH DOCKER IMAGE
+  # ──────────────────────────────────────────────────────────
+  build:
+    name: Build & Push Docker Image
+    needs: [test]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.tag.outputs.tag }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image tag
+        id: tag
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
+          BRANCH_TAG=$(echo ${{ github.ref_name }} | sed 's/[^a-zA-Z0-9.-]/-/g')
+          echo "tag=${BRANCH_TAG}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+          echo "branch_tag=${BRANCH_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.branch_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # 3. DEV DEPLOY — automatic on push to develop
+  # ──────────────────────────────────────────────────────────
+  deploy-dev:
+    name: Deploy to Dev
+    needs: [test, build]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://dev.banking.example.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30"
+
+      - name: Configure Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_DEV }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy with Kustomize (Dev)
+        run: |
+          kubectl apply -k k8s/kustomize/overlays/dev
+
+      - name: Verify deployment
+        run: |
+          kubectl -n apex-banking-dev rollout status deployment/dev-apex-api --timeout=120s
+          kubectl -n apex-banking-dev get pods
+
+  # ──────────────────────────────────────────────────────────
+  # 4. STAGING DEPLOY — on push to main
+  # ──────────────────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy to Staging
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.banking.example.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30"
+
+      - name: Configure Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_STAGING }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy with Kustomize (Staging)
+        run: |
+          kubectl apply -k k8s/kustomize/overlays/staging
+
+      - name: Verify deployment
+        run: |
+          kubectl -n apex-banking-staging rollout status deployment/staging-apex-api --timeout=120s
+          kubectl -n apex-banking-staging get pods
+
+      - name: Run smoke tests
+        run: |
+          STAGING_URL="https://staging.banking.example.com"
+          sleep 15
+          curl -sSf "$STAGING_URL/api/health" | grep -q '"status":"healthy"' && echo "Smoke test passed" || exit 1
+
+  # ──────────────────────────────────────────────────────────
+  # 5. PRODUCTION DEPLOY — manual approval required
+  # ──────────────────────────────────────────────────────────
+  deploy-prod:
+    name: Deploy to Production
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://banking.example.com
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: "v1.30"
+
+      - name: Configure Kubeconfig
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBECONFIG_PROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Deploy with Kustomize (Production)
+        run: |
+          kubectl apply -k k8s/kustomize/overlays/prod
+
+      - name: Verify deployment
+        run: |
+          kubectl -n apex-banking-prod rollout status deployment/prod-apex-api --timeout=180s
+          kubectl -n apex-banking-prod get pods
+
+      - name: Run smoke tests
+        run: |
+          PROD_URL="https://banking.example.com"
+          sleep 20
+          curl -sSf "$PROD_URL/api/health" | grep -q '"status":"healthy"' && echo "Prod smoke test passed" || exit 1
+
+      - name: Notify deployment success
+        run: |
+          echo "Production deployment of ${{ github.sha }} completed successfully."

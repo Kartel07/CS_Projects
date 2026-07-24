@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: apex-banking
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - mysql-init-configmap.yaml
+  - api-deployment.yaml
+  - mysql-statefulset.yaml
+  - redis-deployment.yaml
+  - ingress.yaml
+
+commonLabels:
+  managed-by: kustomize
+
+images:
+  - name: ghcr.io/kartel07/apex-banking-api
+    newTag: latest

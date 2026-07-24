@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apex-api-config
+  namespace: apex-banking
+data:
+  DB_HOST: apex-mysql
+  DB_PORT: "3306"
+  DB_NAME: apex_banking
+  REDIS_HOST: apex-redis
+  NODE_ENV: production
+  CORS_ORIGIN: https://banking.example.com
+  ACCESS_TOKEN_EXPIRY: "15m"
+  REFRESH_TOKEN_EXPIRY: 7d

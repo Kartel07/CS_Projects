@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apex-api-config-dev
+  namespace: apex-banking-dev
+data:
+  NODE_ENV: development
+  CORS_ORIGIN: "*"

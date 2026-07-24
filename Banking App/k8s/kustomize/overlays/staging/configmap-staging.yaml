@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apex-api-config-staging
+  namespace: apex-banking-staging
+data:
+  NODE_ENV: staging
+  CORS_ORIGIN: https://staging.banking.example.com
