@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('../config/db');
 const config = require('../config');
 const logger = require('../utils/logger');
+const mfa = require('./mfaService');
 
 /**
  * Register a new user (customer) with personal info, KYC, and initial account.
@@ -70,7 +71,7 @@ async function registerUser(personal, account) {
  */
 async function initiateLogin(loginHandle, password) {
   const [rows] = await db.execute(
-    'SELECT user_id, username, phone, password_hash FROM users WHERE username = ? OR user_id = ? OR phone = ?',
+    'SELECT user_id, username, first_name, email, phone, password_hash FROM users WHERE username = ? OR user_id = ? OR phone = ?',
     [loginHandle, loginHandle, loginHandle]
   );
 
@@ -88,15 +89,15 @@ async function initiateLogin(loginHandle, password) {
     throw err;
   }
 
-  const codeOTP = String(Math.floor(100000 + Math.random() * 900000));
+  const codeOTP = mfa.generateOTP();
   const expiry = new Date(Date.now() + config.OTP_EXPIRY_MS);
   await db.execute(
     'UPDATE users SET otp_code = ?, otp_expiry = ? WHERE user_id = ?',
     [codeOTP, expiry, user.user_id]
   );
 
-  // Simulate SMS dispatch
-  logger.info(`[SMS SIMULATOR] OTP ${codeOTP} sent to ${user.phone}`);
+  // Dispatch OTP via all available channels (email + console SMS simulation)
+  await mfa.dispatchOTP(user, codeOTP);
 
   await logAudit({
     user_id: user.user_id,

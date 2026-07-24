@@ -9,7 +9,13 @@
     "test": "node --experimental-vm-modules node_modules/.bin/jest --forceExit --detectOpenHandles",
     "test:watch": "node --experimental-vm-modules node_modules/.bin/jest --watch --forceExit --detectOpenHandles"
   },
-  "keywords": ["banking", "express", "mysql", "jwt", "mvc"],
+  "keywords": [
+    "banking",
+    "express",
+    "mysql",
+    "jwt",
+    "mvc"
+  ],
   "author": "Apex Banking Corp",
   "license": "ISC",
   "dependencies": {
@@ -24,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.22.3",
+    "nodemailer": "^9.0.3",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

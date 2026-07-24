@@ -15,5 +15,13 @@ module.exports = {
     current: { baseRate: 0.00, minBalance: 5000.00 }
   },
   PRESENT_ACCOUNT_PREFIX: 'APX',
-  NODE_ENV: process.env.NODE_ENV || 'development'
+  NODE_ENV: process.env.NODE_ENV || 'development',
+
+  // MFA / SMTP
+  SMTP_HOST: process.env.SMTP_HOST,
+  SMTP_PORT: parseInt(process.env.SMTP_PORT, 10) || 587,
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true',
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  SMTP_FROM: process.env.SMTP_FROM || 'noreply@apexbank.com'
 };
