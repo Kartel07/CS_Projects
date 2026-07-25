@@ -1,3 +1,8 @@
+/* ── BASE RESET ── */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #d15b1c, #6a197e);
@@ -74,39 +79,155 @@ button.btn-accent {
 button.btn-accent:hover {
     background: #521262;
 }
-/* ── MOBILE RESPONSIVE MEDIA BREAKPOINT ── */
-@media (max-width: 768px) {
+
+/* ── UTILITY CLASSES ── */
+.d-none { display: none !important; }
+
+/* ── RESPONSIVE: TABLET (≤ 1024px) ── */
+@media (max-width: 1024px) {
     body {
-        padding: 10px; /* Reduce spacing around screen edges */
+        padding: 15px;
     }
 
-    /* Collapse top navigation bar into a stacked vertical column */
+    /* Stack the main 2-column grid to single column */
+    div[style*="grid-template-columns: 2fr 1fr"],
+    div[style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+}
+
+/* ── RESPONSIVE: MOBILE (≤ 768px) ── */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    /* Nav bar: stack into vertical column */
     nav {
-        flex-direction: column;
+        flex-direction: column !important;
         gap: 10px;
         text-align: center;
         padding: 15px !important;
     }
-    div[style*="display:grid"], 
-    div[style*="display: grid"] {
-        grid-template-columns: 1fr !important; 
+
+    nav > div {
+        font-size: 14px !important;
+    }
+
+    /* Main grid: single column */
+    div[style*="grid-template-columns"],
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
         gap: 20px !important;
     }
 
-    /* Expand asset cards to take up the full screen width snugly */
+    /* Card padding reduction */
     form, .card-v {
-        padding: 20px 15px; /* Slightly reduce internal card spacing */
+        padding: 20px 15px;
     }
 
-    /* Make portfolio items wrap naturally on small screens */
-    div[style*="display:flex; justify-content:space-between"] {
+    /* Flex rows: stack vertically */
+    div[style*="display:flex"][style*="justify-content:space-between"],
+    div[style*="display: flex"][style*="justify-content: space-between"] {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 12px;
     }
 
-    /* Force the right-aligned monetary balances to line up cleanly */
-    div[style*="font-size:20px; font-weight:bold"] {
+    /* Balance amounts: right-align on own line */
+    div[style*="font-size:20px"][style*="font-weight:bold"],
+    div[style*="font-size: 20px"][style*="font-weight: bold"] {
         align-self: flex-end;
+    }
+
+    /* Transaction header row: wrap */
+    div[style*="flex-wrap"] {
+        gap: 10px !important;
+    }
+
+    /* Buttons with auto width: make full width on mobile */
+    button[style*="width:auto"] {
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+}
+
+/* ── RESPONSIVE: SMALL PHONE (≤ 480px) ── */
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+
+    /* Nav: tighter spacing */
+    nav {
+        padding: 10px !important;
+        border-radius: 6px !important;
+        margin-bottom: 15px !important;
+    }
+
+    nav > div:first-child {
+        font-size: 16px !important;
+    }
+
+    /* Cards: tighter padding */
+    form, .card-v {
+        padding: 15px 12px;
+        border-radius: 8px;
+    }
+
+    /* Headings: smaller */
+    h2 {
+        font-size: 15px !important;
+    }
+
+    h3 {
+        font-size: 14px !important;
+    }
+
+    /* Form inputs: larger touch targets, prevent iOS zoom */
+    input[type="text"],
+    input[type="date"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select {
+        font-size: 16px;
+        padding: 12px 10px;
+    }
+
+    /* Buttons: larger touch targets */
+    button, input[type="submit"] {
+        padding: 14px 12px;
+        font-size: 14px;
+    }
+
+    /* Stacked flex rows: tighter gap */
+    div[style*="display:flex"][style*="justify-content:space-between"],
+    div[style*="display: flex"][style*="justify-content: space-between"] {
+        gap: 8px;
+    }
+
+    /* Full-width buttons that were auto: ensure full width */
+    button[style*="width:auto"] {
+        font-size: 13px !important;
+        padding: 12px 10px !important;
+    }
+}
+
+/* ── PRINT STYLES ── */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    nav {
+        display: none;
+    }
+
+    form, .card-v {
+        box-shadow: none;
+        border: 1px solid #ddd;
     }
 }
