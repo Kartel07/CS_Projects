@@ -31,7 +31,7 @@ CMAKE_COLOR_MAKEFILE:BOOL=ON
 //Full path to the compiler used for language <LANG>. Set by CMake
 // during compiler detection on the first configure; users may
 // override on the command line to select a specific toolchain.
-CMAKE_CXX_COMPILER:FILEPATH=c:/msys64/ucrt64/bin/g++.exe
+CMAKE_CXX_COMPILER:FILEPATH=C:/msys64/ucrt64/bin/g++.exe
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler
@@ -62,7 +62,7 @@ CMAKE_CXX_STANDARD_LIBRARIES:STRING=-lkernel32 -luser32 -lgdi32 -lwinspool -lshe
 //Full path to the compiler used for language <LANG>. Set by CMake
 // during compiler detection on the first configure; users may
 // override on the command line to select a specific toolchain.
-CMAKE_C_COMPILER:FILEPATH=c:/msys64/ucrt64/bin/gcc.exe
+CMAKE_C_COMPILER:FILEPATH=C:/msys64/ucrt64/bin/gcc.exe
 
 //A wrapper around 'ar' adding the appropriate '--plugin' option
 // for the GCC compiler

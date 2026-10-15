@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -93,7 +94,7 @@ async function initiateLogin(loginHandle, password) {
   const expiry = new Date(Date.now() + config.OTP_EXPIRY_MS);
   await db.execute(
     'UPDATE users SET otp_code = ?, otp_expiry = ? WHERE user_id = ?',
-    [codeOTP, expiry, user.user_id]
+    [mfa.hashOTP(codeOTP), expiry, user.user_id]
   );
 
   // Dispatch OTP via all available channels (email + console SMS simulation)
@@ -126,7 +127,7 @@ async function verifyLogin(loginHandle, otpCode) {
   }
 
   const user = rows[0];
-  if (!user.otp_code || String(user.otp_code).trim() !== String(otpCode).trim()) {
+  if (!user.otp_code || mfa.verifyOTP(otpCode, user.otp_code) === false) {
     const err = new Error('Invalid or Expired clearance challenge token access.');
     err.statusCode = 401;
     throw err;

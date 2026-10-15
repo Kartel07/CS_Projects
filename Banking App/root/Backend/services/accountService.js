@@ -139,19 +139,30 @@ async function createFixedDeposit(userId, amount, tenureMonths, interestRate, pa
   const { generateAccountNumber } = require('../utils/helpers');
   const accNum = generateAccountNumber();
 
-  const [result] = await db.execute(
-    `INSERT INTO accounts (account_number, user_id, account_type, balance, interest_rate, min_balance, tenure_months, payout_option)
-     VALUES (?, ?, 'fixed', ?, ?, ?, ?, ?)`,
-    [accNum, userId, fundingCapital, interestRate, fundingCapital, tenureMonths, payoutOption]
-  );
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
 
-  await db.execute(
-    `INSERT INTO transactions (account_id, user_id, description, txn_type, amount)
-     VALUES (?, ?, ?, 'credit', ?)`,
-    [result.insertId, userId, `Opened Fixed Deposit Certificate (Lock: ${tenureMonths} Mo.)`, fundingCapital]
-  );
+    const [result] = await connection.execute(
+      `INSERT INTO accounts (account_number, user_id, account_type, balance, interest_rate, min_balance, tenure_months, payout_option)
+       VALUES (?, ?, 'fixed', ?, ?, ?, ?, ?)`,
+      [accNum, userId, fundingCapital, interestRate, fundingCapital, tenureMonths, payoutOption]
+    );
 
-  return { message: 'Fixed Deposit deployed successfully!' };
+    await connection.execute(
+      `INSERT INTO transactions (account_id, user_id, description, txn_type, amount)
+       VALUES (?, ?, ?, 'credit', ?)`,
+      [result.insertId, userId, `Opened Fixed Deposit Certificate (Lock: ${tenureMonths} Mo.)`, fundingCapital]
+    );
+
+    await connection.commit();
+    return { message: 'Fixed Deposit deployed successfully!' };
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
 }
 
 module.exports = {

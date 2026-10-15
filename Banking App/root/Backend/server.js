@@ -12,6 +12,7 @@ const config = require('./config');
 const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 const { generalLimiter } = require('./middleware/rateLimiter');
+const csrfProtection = require('./middleware/csrfProtection');
 
 // ── Route imports ──
 const authRoutes = require('./routes/auth');
@@ -48,6 +49,9 @@ app.use(morgan(config.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Global rate limiter
 app.use('/api', generalLimiter);
+
+// CSRF origin/referer check for state-changing requests
+app.use('/api', csrfProtection);
 
 // ── Static frontend serving ──
 app.use(express.static(path.join(__dirname, '../Homepage')));

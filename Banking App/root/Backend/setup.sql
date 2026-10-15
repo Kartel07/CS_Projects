@@ -31,7 +31,7 @@ CREATE TABLE users (
   kyc_number         VARCHAR(20)  NOT NULL UNIQUE,
   dob                DATE         NOT NULL,
   password_hash      VARCHAR(255) NOT NULL,
-  otp_code           VARCHAR(6)   DEFAULT NULL,
+  otp_code           VARCHAR(80)   DEFAULT NULL,
   otp_expiry         TIMESTAMP    NULL DEFAULT NULL,
   refresh_token_hash VARCHAR(255) DEFAULT NULL,
   created_at         TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,

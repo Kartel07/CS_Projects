@@ -1,5 +1,6 @@
 'use strict';
 
+const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
 const config = require('../config');
@@ -127,9 +128,38 @@ async function dispatchOTP(user, otp) {
   }
 }
 
+/**
+ * Hash an OTP for secure DB storage.
+ * Uses SHA-256 so the plaintext is never persisted.
+ * @param {string} otp - The 6-digit code
+ * @returns {string} Format: "sha256:<hex>"
+ */
+function hashOTP(otp) {
+  return 'sha256:' + crypto.createHash('sha256').update(String(otp)).digest('hex');
+}
+
+/**
+ * Verify a user-supplied OTP against the stored hash.
+ * Supports both hashed (sha256:...) and legacy plaintext format.
+ * @param {string} input - The user-supplied code
+ * @param {string} stored - The value from the DB
+ * @returns {boolean}
+ */
+function verifyOTP(input, stored) {
+  if (!stored) return false;
+  const clean = String(stored).trim();
+  if (clean.startsWith('sha256:')) {
+    return 'sha256:' + crypto.createHash('sha256').update(String(input).trim()).digest('hex') === clean;
+  }
+  // Fallback: legacy plaintext comparison (pre-hashing migration)
+  return String(input).trim() === clean;
+}
+
 module.exports = {
   generateOTP,
   sendEmailOTP,
   logSMSOTP,
-  dispatchOTP
+  dispatchOTP,
+  hashOTP,
+  verifyOTP
 };
